@@ -207,7 +207,7 @@ DESCRIPCIÓN DEL CARGO:
 {descripcion_cargo}"""
 
     respuesta = client.chat.completions.create(
-        model="llama-3.1-70b-versatile",
+        model="llama-3.3-70b-versatile",
         messages=[
             {"role": "system", "content": prompt_sistema},
             {"role": "user", "content": prompt_usuario},
