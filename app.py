@@ -181,9 +181,6 @@ def analizar_cv(texto_cv: str, descripcion_cargo: str, api_key: str) -> dict:
 
 Tu tarea es evaluar un CV comparándolo con una descripción de cargo y entregar retroalimentación constructiva y personalizada.
 
-NO uses HTML, CSS, etiquetas <div>, markdown ni código.
-Todas las respuestas deben ser SOLO texto plano dentro del JSON.
-
 Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional antes ni después. El JSON debe tener exactamente esta estructura:
 
 {
@@ -210,7 +207,7 @@ DESCRIPCIÓN DEL CARGO:
 {descripcion_cargo}"""
 
     respuesta = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model="llama-3.1-70b-versatile",
         messages=[
             {"role": "system", "content": prompt_sistema},
             {"role": "user", "content": prompt_usuario},
@@ -220,7 +217,6 @@ DESCRIPCIÓN DEL CARGO:
     )
 
     texto_respuesta = respuesta.choices[0].message.content.strip()
-    texto_respuesta = texto_respuesta.replace("```json", "").replace("```", "")
 
     # Limpiar posibles backticks de markdown
     if texto_respuesta.startswith("```"):
@@ -393,47 +389,45 @@ if analizar:
     col_fort, col_mej = st.columns(2, gap="large")
 
     with col_fort:
-        items_html = ""
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title" style="color:#34e8b0;">💪 Fortalezas detectadas</div>', unsafe_allow_html=True)
         for f in fortalezas:
-            items_html += f"""
-            <div style="margin-bottom:1rem; padding:0.85rem; background:rgba(52,232,176,0.05); border-left:3px solid #34e8b0; border-radius:0 8px 8px 0;">
-                <div style="font-family:'Syne',sans-serif; font-weight:700; color:#34e8b0; font-size:0.9rem;">✓ {f.get('titulo','')}</div>
-                <div style="color:#7a9abf; font-size:0.85rem; margin-top:0.3rem; line-height:1.6;">{f.get('detalle','')}</div>
-            </div>"""
-        st.markdown(f"""
-        <div class="result-card">
-            <div class="section-title" style="color:#34e8b0;">💪 Fortalezas detectadas</div>
-            {items_html}
-        </div>
-        """, unsafe_allow_html=True)
+            titulo = f.get('titulo', '')
+            detalle = f.get('detalle', '')
+            st.markdown(
+                '<div style="margin-bottom:1rem; padding:0.85rem; background:rgba(52,232,176,0.05); '
+                'border-left:3px solid #34e8b0; border-radius:0 8px 8px 0;">'
+                f'<div style="font-family:sans-serif; font-weight:700; color:#34e8b0; font-size:0.9rem;">✓ {titulo}</div>'
+                f'<div style="color:#7a9abf; font-size:0.85rem; margin-top:0.3rem; line-height:1.6;">{detalle}</div>'
+                '</div>',
+                unsafe_allow_html=True
+            )
+        st.markdown('</div>', unsafe_allow_html=True)
 
     with col_mej:
-        items_html = ""
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title" style="color:#f5c842;">🎯 Áreas de mejora</div>', unsafe_allow_html=True)
         for m in mejoras:
-            items_html += f"""
-            <div style="margin-bottom:1rem; padding:0.85rem; background:rgba(245,200,66,0.05); border-left:3px solid #f5c842; border-radius:0 8px 8px 0;">
-                <div style="font-family:'Syne',sans-serif; font-weight:700; color:#f5c842; font-size:0.9rem;">→ {m.get('titulo','')}</div>
-                <div style="color:#7a9abf; font-size:0.85rem; margin-top:0.3rem; line-height:1.6;">{m.get('sugerencia','')}</div>
-            </div>"""
-        st.markdown(f"""
-        <div class="result-card">
-            <div class="section-title" style="color:#f5c842;">🎯 Áreas de mejora</div>
-            {items_html}
-        </div>
-        """, unsafe_allow_html=True)
+            titulo = m.get('titulo', '')
+            sugerencia = m.get('sugerencia', '')
+            st.markdown(
+                '<div style="margin-bottom:1rem; padding:0.85rem; background:rgba(245,200,66,0.05); '
+                'border-left:3px solid #f5c842; border-radius:0 8px 8px 0;">'
+                f'<div style="font-family:sans-serif; font-weight:700; color:#f5c842; font-size:0.9rem;">→ {titulo}</div>'
+                f'<div style="color:#7a9abf; font-size:0.85rem; margin-top:0.3rem; line-height:1.6;">{sugerencia}</div>'
+                '</div>',
+                unsafe_allow_html=True
+            )
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Keywords faltantes
     if keywords:
-        tags_html = "".join(
-            f'<span class="tag-item tag-amber">+ {kw}</span>' for kw in keywords
-        )
-        st.markdown(f"""
-        <div class="result-card">
-            <div class="section-title" style="color:#8bd3ff; margin-bottom:0.5rem;">🔑 Palabras clave a incluir en el CV</div>
-            <p style="color:#344860; font-size:0.8rem; margin-bottom:0.75rem;">Estos términos aparecen en el cargo pero no en el CV. Inclúyelos si aplican a tu experiencia real.</p>
-            <div>{tags_html}</div>
-        </div>
-        """, unsafe_allow_html=True)
+        st.markdown('<div class="result-card">', unsafe_allow_html=True)
+        st.markdown('<div class="section-title" style="color:#8bd3ff; margin-bottom:0.5rem;">🔑 Palabras clave a incluir en el CV</div>', unsafe_allow_html=True)
+        st.markdown('<p style="color:#7a9abf; font-size:0.8rem; margin-bottom:0.75rem;">Estos términos aparecen en el cargo pero no en el CV. Inclúyelos si aplican a tu experiencia real.</p>', unsafe_allow_html=True)
+        tags_html = "".join(f'<span class="tag-item tag-amber">+ {kw}</span>' for kw in keywords)
+        st.markdown(f'<div>{tags_html}</div>', unsafe_allow_html=True)
+        st.markdown('</div>', unsafe_allow_html=True)
 
     # Tip final
     if score < 65:
