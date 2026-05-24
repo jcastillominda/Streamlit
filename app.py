@@ -181,6 +181,9 @@ def analizar_cv(texto_cv: str, descripcion_cargo: str, api_key: str) -> dict:
 
 Tu tarea es evaluar un CV comparándolo con una descripción de cargo y entregar retroalimentación constructiva y personalizada.
 
+NO uses HTML, CSS, etiquetas <div>, markdown ni código.
+Todas las respuestas deben ser SOLO texto plano dentro del JSON.
+
 Responde ÚNICAMENTE con un objeto JSON válido, sin texto adicional antes ni después. El JSON debe tener exactamente esta estructura:
 
 {
@@ -217,6 +220,7 @@ DESCRIPCIÓN DEL CARGO:
     )
 
     texto_respuesta = respuesta.choices[0].message.content.strip()
+    texto_respuesta = texto_respuesta.replace("```json", "").replace("```", "")
 
     # Limpiar posibles backticks de markdown
     if texto_respuesta.startswith("```"):
